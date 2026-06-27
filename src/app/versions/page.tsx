@@ -12,7 +12,7 @@ import {
 import MarsBackground from '@/components/MarsBackground'
 import LiquidGlass from '@/components/LiquidGlass'
 import MartianLogo from '@/components/MartianLogo'
-import { fetchReleases, type OsKey } from '@/lib/github'
+import { fetchReleases, type OsKey, type ReleaseVersion } from '@/lib/github'
 import { formatBytes, OS_META } from '@/lib/os'
 
 export const metadata: Metadata = {
@@ -37,7 +37,7 @@ function fmtDate(d: string) {
 }
 
 export default async function VersionsPage() {
-  let releases
+  let releases: ReleaseVersion[] = []
   try {
     releases = await fetchReleases()
   } catch {
