@@ -40,6 +40,7 @@ export default function DownloadModal({
   const [phase, setPhase] = useState<Phase>('counting')
   const [remaining, setRemaining] = useState(COUNTDOWN)
   const [releases, setReleases] = useState<ReleaseVersion[]>([])
+  const [picked, setPicked] = useState<string | null>(null)
 
   const loadReleases = useCallback(async () => {
     setPhase('loading')
@@ -58,6 +59,7 @@ export default function DownloadModal({
     if (!open) return
     setPhase('counting')
     setRemaining(COUNTDOWN)
+    setPicked(null)
 
     const started = performance.now()
     const id = setInterval(() => {
@@ -85,6 +87,15 @@ export default function DownloadModal({
       .then((d) => typeof d.total === 'number' && onCounted(d.total))
       .catch(() => {})
   }, [onCounted])
+
+  const handlePick = useCallback(
+    (name: string) => {
+      countDownload()
+      setPicked(name)
+      window.setTimeout(() => onClose(), 1800)
+    },
+    [countDownload, onClose]
+  )
 
   const dash = useMemo(() => {
     const pct = (COUNTDOWN - remaining) / COUNTDOWN
@@ -194,6 +205,15 @@ export default function DownloadModal({
                   </div>
                   <p className="mt-1 text-xs text-white/45">{OS_META[os].tagline}</p>
 
+                  {picked && (
+                    <div className="mt-4 flex items-center gap-3 rounded-2xl border border-mars-400/40 bg-mars-500/15 px-4 py-3 text-sm text-mars-100">
+                      <SpinnerGap weight="bold" className="h-4 w-4 animate-spin text-mars-300" />
+                      <span className="min-w-0">
+                        Đang tải <span className="font-medium text-mars-50">{picked}</span>… cửa sổ sẽ tự đóng.
+                      </span>
+                    </div>
+                  )}
+
                   <div className="mt-4 flex items-center justify-between rounded-2xl border border-mars-500/25 bg-mars-500/[0.07] px-4 py-3">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-medium text-mars-100">{latest.tag}</span>
@@ -216,7 +236,7 @@ export default function DownloadModal({
                       <a
                         key={a.name}
                         href={a.url}
-                        onClick={countDownload}
+                        onClick={() => handlePick(a.name)}
                         className="group flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-gradient-to-r from-white/[0.04] to-transparent px-4 py-3 transition hover:border-mars-400/40 hover:from-mars-500/10"
                       >
                         <div className="min-w-0">

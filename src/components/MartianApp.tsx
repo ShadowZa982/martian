@@ -28,10 +28,27 @@ export default function MartianApp() {
       .then((r) => r.json())
       .then((d) => d.id && setSessionId(d.id))
       .catch(() => {})
-    fetch('/api/stats')
-      .then((r) => r.json())
-      .then((d) => typeof d.total === 'number' && setTotal(d.total))
-      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    let stop = false
+    const refresh = () => {
+      if (document.hidden) return
+      fetch('/api/stats')
+        .then((r) => r.json())
+        .then((d) => {
+          if (!stop && typeof d.total === 'number') setTotal(d.total)
+        })
+        .catch(() => {})
+    }
+    refresh()
+    const id = setInterval(refresh, 15000)
+    document.addEventListener('visibilitychange', refresh)
+    return () => {
+      stop = true
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', refresh)
+    }
   }, [])
 
   const open = useCallback((os?: OsKey) => {
