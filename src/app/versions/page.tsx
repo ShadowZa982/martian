@@ -16,8 +16,17 @@ import { fetchReleases, type OsKey, type ReleaseVersion } from '@/lib/github'
 import { formatBytes, OS_META } from '@/lib/os'
 
 export const metadata: Metadata = {
-  title: 'Tất cả phiên bản — Martian',
-  description: 'Lịch sử phát hành VoxelXLauncher theo ngày, kèm bản tải cho mọi hệ điều hành.',
+  title: 'Tất cả phiên bản',
+  description:
+    'Lịch sử phát hành VoxelXLauncher theo ngày, kèm bản tải cho Windows, macOS và Linux.',
+  alternates: { canonical: '/versions' },
+  openGraph: {
+    type: 'website',
+    title: 'Tất cả phiên bản · Martian',
+    description:
+      'Lịch sử phát hành VoxelXLauncher theo ngày, kèm bản tải cho Windows, macOS và Linux.',
+    url: '/versions',
+  },
 }
 
 export const revalidate = 600

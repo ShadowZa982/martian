@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GithubLogo, DiscordLogo, GlobeHemisphereWest } from '@phosphor-icons/react/dist/ssr'
 import MartianLogo from './MartianLogo'
+import FooterMeta from './FooterMeta'
 
 const PRODUCT = [
   { label: 'Tính năng', href: '/#features' },
@@ -54,9 +55,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-2 text-xs text-white/35 sm:flex-row">
-          <span>© 2026 FoxStudio · Made with care</span>
+          <span>© 2026 FoxStudio · Made with FoxStudio</span>
           <span>Minecraft là thương hiệu của Mojang Studios.</span>
         </div>
+
+        <FooterMeta />
       </div>
     </footer>
   )
