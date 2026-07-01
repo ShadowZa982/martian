@@ -17,6 +17,12 @@ const LINKS = [
   { label: 'Website', href: 'https://voxelxclient.vercel.app' },
 ]
 
+const LEGAL = [
+  { label: 'Dịch vụ bên thứ ba', href: '/third-party' },
+  { label: 'Chính sách quyền riêng tư', href: '/privacy' },
+  { label: 'Điều khoản dịch vụ', href: '/terms' },
+]
+
 export default function Footer() {
   return (
     <footer className="relative z-10 mt-10">
@@ -48,9 +54,10 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:gap-x-20">
+          <div className="grid grid-cols-3 gap-x-14 gap-y-8 sm:gap-x-20">
             <FooterCol title="Sản phẩm" items={PRODUCT} />
             <FooterCol title="Liên kết" items={LINKS} />
+            <FooterCol title="Pháp lý" items={LEGAL} />
           </div>
         </div>
 

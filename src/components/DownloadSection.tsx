@@ -4,6 +4,7 @@ import {
   WindowsLogo,
   AppleLogo,
   LinuxLogo,
+  AndroidLogo,
   DownloadSimple,
   type Icon,
 } from '@phosphor-icons/react'
@@ -12,10 +13,10 @@ import Reveal from './Reveal'
 import { useDownload } from './DownloadContext'
 import type { OsKey } from '@/lib/github'
 
-const PLATFORMS: { icon: Icon; label: string; note: string; os: OsKey }[] = [
-  { icon: WindowsLogo, label: 'Windows', note: 'Installer & bản portable (.exe)', os: 'windows' },
-  { icon: AppleLogo, label: 'macOS', note: 'Apple Silicon & Intel (.dmg)', os: 'mac' },
-  { icon: LinuxLogo, label: 'Linux', note: 'AppImage · .deb · AUR', os: 'linux' },
+const PLATFORMS: { icon: Icon; label: string; note: string; os: OsKey; color: string }[] = [
+  { icon: WindowsLogo, label: 'Windows', note: 'Installer & bản portable (.exe)', os: 'windows', color: 'text-[#00adef]' },
+  { icon: AppleLogo, label: 'macOS', note: 'Apple Silicon & Intel (.dmg)', os: 'mac', color: 'text-[#a8b2be]' },
+  { icon: LinuxLogo, label: 'Linux', note: 'AppImage · .deb · AUR', os: 'linux', color: 'text-[#f5a623]' },
 ]
 
 export default function DownloadSection() {
@@ -50,7 +51,7 @@ export default function DownloadSection() {
             lượt tải · Miễn phí & mã nguồn mở
           </div>
 
-          <div className="mt-12 grid gap-3 sm:grid-cols-3">
+          <div className="mt-12 grid gap-3 sm:grid-cols-4">
             {PLATFORMS.map((p) => {
               const Ico = p.icon
               return (
@@ -59,12 +60,20 @@ export default function DownloadSection() {
                   onClick={() => open(p.os)}
                   className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition hover:border-mars-400/40 hover:bg-mars-500/5"
                 >
-                  <Ico weight="duotone" className="h-8 w-8 text-mars-300" />
+                  <Ico weight="duotone" className={`h-8 w-8 ${p.color}`} />
                   <span className="text-sm font-medium text-mars-50">{p.label}</span>
                   <span className="text-xs text-white/45">{p.note}</span>
                 </button>
               )
             })}
+            <button
+              onClick={() => open('android')}
+              className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.03] p-5 transition hover:border-mars-400/40 hover:bg-mars-500/5"
+            >
+              <AndroidLogo weight="duotone" className="h-8 w-8 text-[#3ddc84]" />
+              <span className="text-sm font-medium text-mars-50">Android</span>
+              <span className="text-xs text-white/45">APK · Android 8.0+</span>
+            </button>
           </div>
         </LiquidGlass>
       </Reveal>

@@ -7,6 +7,7 @@ import {
   WindowsLogo,
   AppleLogo,
   LinuxLogo,
+  AndroidLogo,
 } from '@phosphor-icons/react'
 import LiquidGlass from './LiquidGlass'
 import { useDownload } from './DownloadContext'
@@ -94,13 +95,16 @@ export default function Hero() {
         className="mt-6 flex items-center gap-5 text-white/45"
       >
         <span className="flex items-center gap-1.5 text-sm">
-          <WindowsLogo weight="duotone" className="h-4 w-4" /> Windows
+          <WindowsLogo weight="duotone" className="h-4 w-4 text-[#00adef]" /> Windows
         </span>
         <span className="flex items-center gap-1.5 text-sm">
-          <AppleLogo weight="duotone" className="h-4 w-4" /> macOS
+          <AppleLogo weight="duotone" className="h-4 w-4 text-[#a8b2be]" /> macOS
         </span>
         <span className="flex items-center gap-1.5 text-sm">
-          <LinuxLogo weight="duotone" className="h-4 w-4" /> Linux
+          <LinuxLogo weight="duotone" className="h-4 w-4 text-[#f5a623]" /> Linux
+        </span>
+        <span className="flex items-center gap-1.5 text-sm">
+          <AndroidLogo weight="duotone" className="h-4 w-4 text-[#3ddc84]" /> Android
         </span>
       </motion.div>
 

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Sora, JetBrains_Mono } from 'next/font/google'
 import GlassFilter from '@/components/GlassFilter'
+import { GraphicsProvider } from '@/components/GraphicsContext'
 import { siteConfig, siteUrl } from '@/lib/site'
 import './globals.css'
 
@@ -114,7 +115,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <GlassFilter />
-        {children}
+        <GraphicsProvider>
+          {children}
+        </GraphicsProvider>
       </body>
     </html>
   )

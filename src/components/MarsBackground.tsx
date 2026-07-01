@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useGraphics } from './GraphicsContext'
 
 const VERT = `#version 300 es
 in vec2 p;
@@ -110,17 +111,23 @@ function compile(gl: WebGL2RenderingContext, type: number, src: string) {
 }
 
 export default function MarsBackground() {
+  const { mode } = useGraphics()
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const rafRef = useRef(0)
+  const glRef = useRef<WebGL2RenderingContext | null>(null)
+  const uTimeRef = useRef<WebGLUniformLocation | null>(null)
+  const startRef = useRef(0)
+  const initializedRef = useRef(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas || initializedRef.current) return
+
     const gl = canvas.getContext('webgl2', { antialias: false, alpha: false })
-    if (!gl) {
-      canvas.style.background =
-        'radial-gradient(80% 80% at 60% 30%, #5c2417, #1a0a06 70%, #0a0605)'
-      return
-    }
+    if (!gl) return
+
+    initializedRef.current = true
+    glRef.current = gl
 
     const prog = gl.createProgram()!
     gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT))
@@ -136,7 +143,7 @@ export default function MarsBackground() {
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
 
     const uRes = gl.getUniformLocation(prog, 'u_res')
-    const uTime = gl.getUniformLocation(prog, 'u_time')
+    uTimeRef.current = gl.getUniformLocation(prog, 'u_time')
 
     const pr = Math.min(window.devicePixelRatio || 1, 1.5)
     const resize = () => {
@@ -152,25 +159,48 @@ export default function MarsBackground() {
     resize()
     window.addEventListener('resize', resize)
 
-    let raf = 0
-    const start = performance.now()
-    const render = () => {
-      gl.uniform1f(uTime, (performance.now() - start) / 1000)
-      gl.drawArrays(gl.TRIANGLES, 0, 3)
-      raf = requestAnimationFrame(render)
-    }
-    raf = requestAnimationFrame(render)
+    startRef.current = performance.now()
 
     return () => {
-      cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
+      cancelAnimationFrame(rafRef.current)
       gl.getExtension('WEBGL_lose_context')?.loseContext()
     }
   }, [])
 
+  useEffect(() => {
+    const gl = glRef.current
+    if (!gl) return
+
+    cancelAnimationFrame(rafRef.current)
+
+    if (mode === 'quality') {
+      const render = () => {
+        gl.uniform1f(uTimeRef.current, (performance.now() - startRef.current) / 1000)
+        gl.drawArrays(gl.TRIANGLES, 0, 3)
+        rafRef.current = requestAnimationFrame(render)
+      }
+      rafRef.current = requestAnimationFrame(render)
+    }
+  }, [mode])
+
+  const isQuality = mode === 'quality'
+
   return (
     <div aria-hidden className="fixed inset-0 z-0 overflow-hidden bg-[#0a0605]">
-      <canvas ref={canvasRef} className="h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className="h-full w-full"
+        style={{ opacity: isQuality ? 1 : 0, transition: 'opacity 0.6s ease' }}
+      />
+      <div
+        className="absolute inset-0 h-full w-full"
+        style={{
+          opacity: isQuality ? 0 : 1,
+          transition: 'opacity 0.6s ease',
+          background: 'radial-gradient(ellipse 80% 70% at 65% 20%, #5c2417 0%, #2a0e07 45%, #0a0605 75%)',
+        }}
+      />
       <div className="absolute inset-0 [background:linear-gradient(180deg,rgba(10,6,5,0.15),transparent_30%,rgba(10,6,5,0.35)_78%,#0a0605)]" />
     </div>
   )

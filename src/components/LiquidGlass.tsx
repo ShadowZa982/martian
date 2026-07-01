@@ -1,4 +1,7 @@
+'use client'
+
 import { cn } from '@/lib/cn'
+import { useGraphics } from './GraphicsContext'
 
 type Props = {
   children: React.ReactNode
@@ -15,12 +18,22 @@ export default function LiquidGlass({
   hover,
   as: Tag = 'div',
 }: Props) {
+  const { mode } = useGraphics()
+
+  const liteClass = strong
+    ? 'bg-white/[0.06] backdrop-blur-md border border-white/12'
+    : 'bg-white/[0.04] backdrop-blur-sm border border-white/10'
+
+  const qualityClass = cn(
+    strong ? 'glass-strong' : 'glass',
+    hover && 'glass-hover'
+  )
+
   return (
     <Tag
       className={cn(
         'relative overflow-hidden rounded-3xl',
-        strong ? 'glass-strong' : 'glass',
-        hover && 'glass-hover',
+        mode === 'lite' ? liteClass : qualityClass,
         className
       )}
     >

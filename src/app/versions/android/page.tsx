@@ -1,42 +1,35 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
-  WindowsLogo,
-  AppleLogo,
-  LinuxLogo,
   AndroidLogo,
+  WindowsLogo,
   DownloadSimple,
   ArrowLeft,
   CalendarBlank,
   Package,
+  DeviceMobile,
 } from '@phosphor-icons/react/dist/ssr'
 import MarsBackground from '@/components/MarsBackground'
 import LiquidGlass from '@/components/LiquidGlass'
 import MartianLogo from '@/components/MartianLogo'
-import { fetchReleases, type OsKey, type ReleaseVersion } from '@/lib/github'
-import { formatBytes, OS_META } from '@/lib/os'
+import { fetchAndroidReleases, type AndroidRelease } from '@/lib/github'
+import { formatBytes, ANDROID_META } from '@/lib/os'
 
 export const metadata: Metadata = {
-  title: 'Tất cả phiên bản',
+  title: 'Phiên bản Android · Martian',
   description:
-    'Lịch sử phát hành VoxelXLauncher theo ngày, kèm bản tải cho Windows, macOS và Linux.',
-  alternates: { canonical: '/versions' },
+    'Tất cả bản phát hành Martian Launcher cho Android. Tải APK theo kiến trúc thiết bị.',
+  alternates: { canonical: '/versions/android' },
   openGraph: {
     type: 'website',
-    title: 'Tất cả phiên bản · Martian',
+    title: 'Phiên bản Android · Martian',
     description:
-      'Lịch sử phát hành VoxelXLauncher theo ngày, kèm bản tải cho Windows, macOS và Linux.',
-    url: '/versions',
+      'Tất cả bản phát hành Martian Launcher cho Android. Tải APK theo kiến trúc thiết bị.',
+    url: '/versions/android',
   },
 }
 
 export const revalidate = 600
-
-const OS_ICON: Record<OsKey, React.ReactNode> = {
-  windows: <WindowsLogo weight="duotone" className="h-4 w-4 text-[#00adef]" />,
-  mac: <AppleLogo weight="duotone" className="h-4 w-4 text-[#a8b2be]" />,
-  linux: <LinuxLogo weight="duotone" className="h-4 w-4 text-[#f5a623]" />,
-}
 
 function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('vi-VN', {
@@ -46,10 +39,10 @@ function fmtDate(d: string) {
   })
 }
 
-export default async function VersionsPage() {
-  let releases: ReleaseVersion[] = []
+export default async function AndroidVersionsPage() {
+  let releases: AndroidRelease[] = []
   try {
-    releases = await fetchReleases()
+    releases = await fetchAndroidReleases()
   } catch {
     releases = []
   }
@@ -77,32 +70,46 @@ export default async function VersionsPage() {
           Lịch sử phát hành
         </span>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-mars-50 sm:text-5xl">
-          Tất cả phiên bản
+          Phiên bản Android
         </h1>
         <p className="mt-3 max-w-xl text-white/55">
-          {releases.length} bản phát hành VoxelXLauncher, sắp xếp theo ngày mới nhất. Chọn đúng tệp cho hệ điều hành của bạn.
+          {releases.length} bản phát hành Martian Launcher cho Android, sắp xếp theo ngày mới nhất.
+          Yêu cầu {ANDROID_META.minSdk}.
         </p>
 
         <div className="mt-8 flex gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full bg-mars-500/20 px-4 py-2 text-sm font-medium text-mars-200">
-            <WindowsLogo weight="duotone" className="h-4 w-4 text-[#00adef]" />
-            Desktop
-          </span>
           <Link
-            href="/versions/android"
+            href="/versions"
             className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white/60 transition hover:border-mars-400/40 hover:text-mars-200"
           >
+            <WindowsLogo weight="duotone" className="h-4 w-4 text-[#00adef]" />
+            Desktop
+          </Link>
+          <span className="inline-flex items-center gap-2 rounded-full bg-mars-500/20 px-4 py-2 text-sm font-medium text-mars-200">
             <AndroidLogo weight="duotone" className="h-4 w-4 text-[#3ddc84]" />
             Android (APK)
-          </Link>
+          </span>
         </div>
+
+        <LiquidGlass className="mt-8 flex items-start gap-4 p-5 sm:items-center">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-mars-500/15 text-mars-300">
+            <DeviceMobile weight="duotone" className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-sm font-medium text-mars-50">Chọn APK phù hợp với thiết bị</p>
+            <p className="mt-0.5 text-xs text-white/50">
+              Hầu hết điện thoại Android hiện đại dùng <span className="text-white/75">arm64-v8a</span>.
+              Nếu không chắc, tải bản <span className="text-white/75">Universal</span> (dung lượng lớn hơn nhưng chạy được trên mọi thiết bị).
+            </p>
+          </div>
+        </LiquidGlass>
 
         {releases.length === 0 ? (
           <LiquidGlass strong className="mt-8 p-10 text-center text-white/60">
             Không tải được danh sách phiên bản. Vui lòng thử lại sau.
           </LiquidGlass>
         ) : (
-          <div className="mt-8 space-y-5">
+          <div className="mt-6 space-y-5">
             {releases.map((rel, i) => (
               <LiquidGlass key={rel.tag} strong className="p-6 sm:p-7">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
@@ -123,6 +130,10 @@ export default async function VersionsPage() {
                             Beta
                           </span>
                         )}
+                        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-[10px] text-white/45">
+                          <AndroidLogo weight="duotone" className="h-3 w-3 text-[#3ddc84]" />
+                          APK
+                        </span>
                       </div>
                       <div className="text-sm text-white/45">{rel.name}</div>
                     </div>
@@ -133,41 +144,26 @@ export default async function VersionsPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-5 sm:grid-cols-3">
-                  {(Object.keys(OS_META) as OsKey[]).map((os) => (
-                    <div key={os}>
-                      <div className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-white/55">
-                        {OS_ICON[os]}
-                        {OS_META[os].label}
-                      </div>
-                      {rel.os[os].length === 0 ? (
-                        <div className="text-xs text-white/25">—</div>
-                      ) : (
-                        <div className="space-y-1.5">
-                          {rel.os[os].map((a) => (
-                            <a
-                              key={a.name}
-                              href={a.url}
-                              className="group flex items-center justify-between gap-2 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2 transition hover:border-mars-400/40 hover:bg-mars-500/10"
-                            >
-                              <span className="min-w-0">
-                                <span className="block truncate text-xs text-mars-50">{a.label}</span>
-                                {a.arch && (
-                                  <span className="text-[10px] text-white/40">{a.arch}</span>
-                                )}
-                              </span>
-                              <span className="flex shrink-0 items-center gap-1.5 text-[10px] text-white/40">
-                                {formatBytes(a.size)}
-                                <DownloadSimple
-                                  weight="bold"
-                                  className="h-3.5 w-3.5 text-mars-300 transition group-hover:translate-y-0.5"
-                                />
-                              </span>
-                            </a>
-                          ))}
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {rel.apks.map((a) => (
+                    <a
+                      key={a.name}
+                      href={a.url}
+                      className="group flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-gradient-to-r from-white/[0.04] to-transparent px-4 py-3 transition hover:border-mars-400/40 hover:from-mars-500/10"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 text-sm text-mars-50">
+                          <span className="truncate">{a.label}</span>
                         </div>
-                      )}
-                    </div>
+                        <div className="truncate text-[11px] text-white/40">{a.name}</div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
+                        <span className="text-xs text-white/45">{formatBytes(a.size)}</span>
+                        <span className="grid h-9 w-9 place-items-center rounded-lg bg-mars-500/15 text-mars-300 transition group-hover:bg-mars-500 group-hover:text-white">
+                          <DownloadSimple weight="bold" className="h-4 w-4" />
+                        </span>
+                      </div>
+                    </a>
                   ))}
                 </div>
 

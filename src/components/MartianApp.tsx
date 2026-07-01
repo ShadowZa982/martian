@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { DownloadContext } from './DownloadContext'
+import type { DownloadTarget } from './DownloadContext'
 import { detectOs } from '@/lib/os'
 import { getCookie, setCookie, deleteCookie } from '@/lib/cookies'
-import type { OsKey } from '@/lib/github'
 import MarsBackground from './MarsBackground'
 import CookieConsent from './CookieConsent'
 import LoadingScreen from './LoadingScreen'
@@ -24,7 +24,7 @@ export default function MartianApp() {
   const [cookieId, setCookieId] = useState('')
   const [total, setTotal] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
-  const [targetOs, setTargetOs] = useState<OsKey>('windows')
+  const [target, setTarget] = useState<DownloadTarget>('windows')
   const [consent, setConsent] = useState<'accepted' | 'rejected' | null>(null)
 
   useEffect(() => {
@@ -83,8 +83,8 @@ export default function MartianApp() {
     }
   }, [])
 
-  const open = useCallback((os?: OsKey) => {
-    setTargetOs(os ?? detectOs())
+  const open = useCallback((t?: DownloadTarget) => {
+    setTarget(t ?? detectOs())
     setModalOpen(true)
   }, [])
 
@@ -112,7 +112,7 @@ export default function MartianApp() {
 
       <DownloadModal
         open={modalOpen}
-        os={targetOs}
+        target={target}
         onClose={() => setModalOpen(false)}
         onCounted={setTotal}
       />

@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { DownloadSimple, List, X } from '@phosphor-icons/react'
+import { DownloadSimple, List, X, Lightning, Drop } from '@phosphor-icons/react'
 import MartianLogo from './MartianLogo'
 import { useDownload } from './DownloadContext'
+import { useGraphics } from './GraphicsContext'
 
 const NAV = [
   { label: 'Tính năng', href: '#features' },
@@ -15,6 +16,7 @@ const NAV = [
 
 export default function Header() {
   const { total, open } = useDownload()
+  const { mode, toggle } = useGraphics()
   const [scrolled, setScrolled] = useState(false)
   const [menu, setMenu] = useState(false)
 
@@ -64,6 +66,16 @@ export default function Header() {
               </span>
               <span className="text-[11px] text-white/40">lượt tải</span>
             </div>
+            <button
+              onClick={toggle}
+              title={mode === 'lite' ? 'Chuyển sang chất lượng cao' : 'Chuyển sang nhẹ nhàng'}
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.03] text-white/55 transition hover:border-white/25 hover:text-white"
+            >
+              {mode === 'lite'
+                ? <Lightning weight="duotone" className="h-4 w-4 text-[#f5a623]" />
+                : <Drop weight="duotone" className="h-4 w-4 text-[#60a5fa]" />
+              }
+            </button>
             <button
               onClick={() => open()}
               className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-mars-600 to-mars-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-mars-900/40 transition hover:from-mars-500 hover:to-mars-400"

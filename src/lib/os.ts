@@ -9,6 +9,12 @@ export const OS_META: Record<
   linux: { label: 'Linux', icon: 'linux', tagline: 'AppImage · .deb · AUR' },
 }
 
+export const ANDROID_META = {
+  label: 'Android',
+  tagline: 'Android 8.0+ (APK)',
+  minSdk: 'Android 8.0 (API 26)+',
+}
+
 export function detectOs(): OsKey {
   if (typeof navigator === 'undefined') return 'windows'
   const ua = navigator.userAgent.toLowerCase()
