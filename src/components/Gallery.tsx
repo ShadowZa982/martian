@@ -1,17 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
-import { Monitor, DeviceMobile } from '@phosphor-icons/react'
+import { Monitor, DeviceMobile, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { cn } from '@/lib/cn'
 import Reveal from './Reveal'
 
 const SHOTS = [
+  { file: 'homepage.png', title: 'Trang chủ', desc: 'Tin tức nổi bật & khởi chạy nhanh' },
   { file: 'create-profile.png', title: 'Tạo hồ sơ', desc: 'Chọn phiên bản & loader trực quan' },
   { file: 'profile.png', title: 'Hồ sơ', desc: 'Quản lý nhiều cấu hình song song' },
   { file: 'mod-and-ressouce.png', title: 'Mod & tài nguyên', desc: 'Duyệt và cài mod ngay trong app' },
   { file: 'account.png', title: 'Tài khoản', desc: 'Đăng nhập Microsoft an toàn' },
-  { file: 'homepage.png', title: 'Trang chủ', desc: 'Tin tức nổi bật & khởi chạy nhanh' },
 ]
 
 const ANDROID_SHOTS = [
@@ -24,58 +24,105 @@ const ANDROID_SHOTS = [
 
 type Tab = 'pc' | 'android'
 
-function GalleryStrip({ shots, priority }: { shots: typeof SHOTS; priority?: boolean }) {
-  const [active, setActive] = useState(shots.length - 1)
+function GalleryViewer({
+  shots,
+  isAndroid,
+  priority,
+}: {
+  shots: typeof SHOTS
+  isAndroid?: boolean
+  priority?: boolean
+}) {
+  const [active, setActive] = useState(0)
+  const thumbsRef = useRef<HTMLDivElement>(null)
+
+  const prev = () => setActive((i) => (i - 1 + shots.length) % shots.length)
+  const next = () => setActive((i) => (i + 1) % shots.length)
 
   return (
-    <div className="flex h-[360px] gap-2.5 sm:h-[480px] sm:gap-3">
-      {shots.map((s, i) => {
-        const isActive = active === i
-        return (
+    <div className="flex flex-col gap-5">
+      {/* Featured */}
+      <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+        {/* aspect ratio wrapper */}
+        <div className={cn('relative w-full', isAndroid ? 'aspect-[9/16] max-h-[520px]' : 'aspect-[16/9]')}>
+          {shots.map((s, i) => (
+            <div
+              key={s.file}
+              className={cn(
+                'absolute inset-0 transition-opacity duration-500',
+                active === i ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              )}
+            >
+              <Image
+                src={`/previews/${s.file}`}
+                alt={s.title}
+                fill
+                sizes={isAndroid ? '400px' : '1200px'}
+                className="object-contain"
+                priority={priority && i === 0}
+              />
+            </div>
+          ))}
+
+          {/* gradient overlay bottom */}
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 to-transparent" />
+
+          {/* caption */}
+          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-mars-400">
+              {active + 1} / {shots.length}
+            </p>
+            <p className="mt-1 text-lg font-semibold text-white">{shots[active].title}</p>
+            <p className="text-sm text-white/55">{shots[active].desc}</p>
+          </div>
+
+          {/* nav arrows */}
+          <button
+            onClick={prev}
+            aria-label="Ảnh trước"
+            className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/70 backdrop-blur-md transition hover:border-mars-400/50 hover:bg-black/70 hover:text-white"
+          >
+            <CaretLeft weight="bold" className="h-4 w-4" />
+          </button>
+          <button
+            onClick={next}
+            aria-label="Ảnh tiếp theo"
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white/70 backdrop-blur-md transition hover:border-mars-400/50 hover:bg-black/70 hover:text-white"
+          >
+            <CaretRight weight="bold" className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Thumbnails */}
+      <div
+        ref={thumbsRef}
+        className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none"
+        style={{ scrollbarWidth: 'none' }}
+      >
+        {shots.map((s, i) => (
           <button
             key={s.file}
-            onMouseEnter={() => setActive(i)}
-            onFocus={() => setActive(i)}
             onClick={() => setActive(i)}
             aria-label={s.title}
-            className="group relative h-full min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-black/60 transition-[flex-grow] duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{ flexGrow: isActive ? 5 : 1, flexBasis: 0 }}
+            className={cn(
+              'relative shrink-0 overflow-hidden rounded-xl border transition-all duration-300',
+              isAndroid ? 'h-20 w-12' : 'h-16 w-28 sm:h-20 sm:w-36',
+              active === i
+                ? 'border-mars-400/70 ring-1 ring-mars-400/40 scale-[1.04]'
+                : 'border-white/10 opacity-50 hover:opacity-80'
+            )}
           >
             <Image
               src={`/previews/${s.file}`}
               alt={s.title}
               fill
-              sizes={isActive ? '760px' : '180px'}
-              className={cn(
-                'transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-                isActive ? 'object-contain' : 'scale-105 object-cover'
-              )}
-              priority={priority && i === shots.length - 1}
+              sizes={isAndroid ? '48px' : '144px'}
+              className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-            <span
-              aria-hidden
-              className={cn(
-                'pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset transition-colors duration-700',
-                isActive ? 'ring-mars-400/45' : 'ring-transparent'
-              )}
-            />
-            <div
-              className={cn(
-                'pointer-events-none absolute inset-x-0 top-1/2 flex justify-center transition-transform duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-                isActive ? 'translate-y-[148px] sm:translate-y-[208px]' : '-translate-y-1/2'
-              )}
-            >
-              <span
-                className="block whitespace-nowrap text-base font-semibold leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.65)] transition-transform duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] sm:text-lg"
-                style={{ transform: isActive ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-              >
-                {s.title}
-              </span>
-            </div>
           </button>
-        )
-      })}
+        ))}
+      </div>
     </div>
   )
 }
@@ -84,7 +131,8 @@ export default function Gallery() {
   const [tab, setTab] = useState<Tab>('pc')
 
   return (
-    <section id="gallery" className="relative z-10 mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <section id="gallery" className="relative z-10 mx-auto max-w-5xl px-4 py-24 sm:px-6">
+      {/* Tab switcher */}
       <Reveal className="flex justify-center">
         <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.03] p-1 gap-1">
           <button
@@ -114,33 +162,41 @@ export default function Gallery() {
         </div>
       </Reveal>
 
-      <Reveal className="mt-10">
-        <div className="mx-auto mb-10 max-w-2xl text-center">
-          {tab === 'pc' ? (
-            <>
-              <span className="text-xs font-semibold uppercase tracking-[0.32em] text-mars-400">Desktop</span>
-              <p className="mt-4 text-balance text-4xl font-semibold tracking-tight text-mars-50 sm:text-5xl">
-                Thiết kế tinh tế đến từng pixel
-              </p>
-              <p className="mt-4 text-balance text-lg text-white/55">
-                Di chuột qua từng ảnh để xem chi tiết — tối giản, tối màu và mượt mà.
-              </p>
-            </>
-          ) : (
-            <>
-              <span className="text-xs font-semibold uppercase tracking-[0.32em] text-mars-400">Android</span>
-              <p className="mt-4 text-balance text-4xl font-semibold tracking-tight text-mars-50 sm:text-5xl">
-                Mang Minecraft vào lòng bàn tay
-              </p>
-              <p className="mt-4 text-balance text-lg text-white/55">
-                Giao diện cảm ứng tối ưu, hỗ trợ Fabric · Forge · NeoForge ngay trên điện thoại Android 8.0+.
-              </p>
-            </>
-          )}
-        </div>
+      {/* Heading */}
+      <Reveal className="mx-auto mb-10 mt-10 max-w-2xl text-center">
+        {tab === 'pc' ? (
+          <>
+            <span className="text-xs font-semibold uppercase tracking-[0.32em] text-mars-400">Desktop</span>
+            <p className="mt-4 text-balance text-4xl font-semibold tracking-tight text-mars-50 sm:text-5xl">
+              Thiết kế tinh tế đến từng pixel
+            </p>
+            <p className="mt-4 text-balance text-lg text-white/55">
+              Tối giản, tối màu và mượt mà — trải nghiệm giao diện được chăm chút kỹ lưỡng.
+            </p>
+          </>
+        ) : (
+          <>
+            <span className="text-xs font-semibold uppercase tracking-[0.32em] text-mars-400">Android</span>
+            <p className="mt-4 text-balance text-4xl font-semibold tracking-tight text-mars-50 sm:text-5xl">
+              Mang Minecraft vào lòng bàn tay
+            </p>
+            <p className="mt-4 text-balance text-lg text-white/55">
+              Giao diện cảm ứng tối ưu, hỗ trợ Fabric · Forge · NeoForge ngay trên điện thoại Android 8.0+.
+            </p>
+          </>
+        )}
+      </Reveal>
 
-        {tab === 'pc' && <GalleryStrip shots={SHOTS} priority />}
-        {tab === 'android' && <GalleryStrip shots={ANDROID_SHOTS} />}
+      {/* Viewer */}
+      <Reveal>
+        {tab === 'pc' && (
+          <GalleryViewer shots={SHOTS} priority />
+        )}
+        {tab === 'android' && (
+          <div className="mx-auto max-w-sm">
+            <GalleryViewer shots={ANDROID_SHOTS} isAndroid />
+          </div>
+        )}
       </Reveal>
     </section>
   )
